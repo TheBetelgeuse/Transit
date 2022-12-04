@@ -8,7 +8,9 @@ void TrafficControllerFoo(uint8_t max_mass, bool location, key_t message_queue,
   log_dir += char(location);
   log_dir += ".txt";
   SystemFile log;
-  log.openf(log_dir.c_str());
+  if (log.openf(log_dir.c_str())) {
+    exit(1);
+  }
   TrafficController traffic_controller(max_mass, location, message_queue,
                                        semaphore, log);
   while (true) {
