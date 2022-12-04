@@ -10,7 +10,7 @@ struct MessageBuffer {
   char message_text[MESSAGE_SIZE];
 };
 
-void TruckFoo(uint8_t weight, uint8_t speed, bool location,
+void TruckFoo(uint8_t weight, uint8_t speed, uint8_t bridge_length, bool location,
              key_t message_queue_traffic_controller1,
              key_t message_queue_traffic_controller2, std::string log_dir);
 
