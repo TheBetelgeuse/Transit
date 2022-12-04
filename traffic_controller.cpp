@@ -1,0 +1,18 @@
+#include "traffic_controller.hpp"
+
+#include "initialization.hpp"
+
+void TrafficControllerFoo(uint8_t max_mass, bool location, key_t message_queue,
+                          key_t semaphore, std::string log_dir) {
+  log_dir += "TrafficController";
+  log_dir += char(location);
+  SystemFile log;
+  log.openf(log_dir.c_str());
+  TrafficController traffic_controller(max_mass, location, message_queue,
+                                       semaphore, log);
+  while (true) {
+    traffic_controller.GetTrucks();
+    traffic_controller.SendTrucksToBridgeAndWait();
+    traffic_controller.TransferControlToAnotherControllerAndWait();
+  }
+}
