@@ -4,8 +4,9 @@
 
 void TrafficControllerFoo(uint8_t max_mass, bool location, key_t message_queue,
                           key_t semaphore, std::string log_dir) {
-  log_dir += "TrafficController";
+  log_dir += "LogTrafficController";
   log_dir += char(location);
+  log_dir += ".txt";
   SystemFile log;
   log.openf(log_dir.c_str());
   TrafficController traffic_controller(max_mass, location, message_queue,
