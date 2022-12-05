@@ -19,3 +19,13 @@ void TrafficControllerFoo(uint8_t max_mass, bool location, key_t message_queue,
     traffic_controller.TransferControlToAnotherControllerAndWait();
   }
 }
+
+void TrafficController::GetTrucks() {
+  while (true) {
+    std::optional<DumpTruck> input_truck = TruckArrival();
+    if (!input_truck.has_value()) {
+      break;
+    }
+    dump_truck_queue_.push(input_truck.value());
+  }
+}
