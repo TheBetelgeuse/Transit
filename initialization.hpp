@@ -15,6 +15,6 @@ void TruckFoo(uint8_t weight, uint8_t speed, uint8_t bridge_length, bool locatio
              key_t message_queue_traffic_controller2, std::string log_dir);
 
 void TrafficControllerFoo(uint8_t max_mass, bool location, key_t message_queue,
-                         key_t semaphore, std::string log_dir);
+                         key_t reverse_semaphore, key_t num_of_trucks_semaphore, std::string log_dir);
 
 #endif  // TRANSIT_INITIALIZATION_HPP_
