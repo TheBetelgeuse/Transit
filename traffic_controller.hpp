@@ -12,33 +12,43 @@
 
 #include "SystemFile.hpp"
 
-struct DumpTruck {
-  key_t semaphore;
-  size_t weight;
+namespace TrafficControllerNS {
+
+struct DumpTruck {  // Структура, которую передаёт самосвал регулировщику
+  uint8_t number;
+  uint8_t weight;
 };
 
-class TrafficController {
+class TrafficController {  // регулировщик
  public:
   TrafficController(uint8_t max_mass, bool location, key_t message_queue_key,
-                    key_t semaphore_key, SystemFile log);
+                    key_t truck_semaphore_arr_key, key_t tc_semaphore_key,
+                    key_t turn_off_semaphore, SystemFile log);
   ~TrafficController();
-  void GetTrucks();
-  void SendTrucksToBridgeAndWait();
-  void TransferControlToAnotherControllerAndWait();
+  void StartProcess();
 
  private:
   bool controller_id_;
   size_t allowed_weight_;
   size_t curr_weight_;
   std::queue<DumpTruck> dump_truck_queue_;
+
   int message_queue_descriptor;
-  int sem_traffic_controller_descriptor_;
-  sembuf wait_for_control_;
-  sembuf transfer_control_;
+  int sem_tc_descriptor_;
+  int sem_turn_off_descriptor_;
+  int sem_truck_descriptor_;
+
   SystemFile log_;
 
+  void GetTrucks();
   std::optional<DumpTruck> TruckArrival();
+  void SendTrucksToBridgeAndWait();
+  void TransferControlToAnotherControllerAndWait();
+
   bool IsControlMine();
+  bool IsTurnedOff();
 };
+
+}  // namespace TrafficControllerNS
 
 #endif  // TRANSIT_TRAFFIC_CONTROLLER_HPP_
