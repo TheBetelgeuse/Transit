@@ -2,7 +2,7 @@
 
 #include "initialization.hpp"
 
-void TrafficControllerFoo(uint8_t max_mass, bool location, key_t message_queue,
+void TrafficControllerNS::TrafficControllerFoo(uint8_t max_mass, bool location, key_t message_queue,
                           key_t semaphore, std::string log_dir) {
   log_dir += "LogTrafficController";
   log_dir += char(location);
@@ -11,7 +11,7 @@ void TrafficControllerFoo(uint8_t max_mass, bool location, key_t message_queue,
   if (log.openf(log_dir.c_str())) {
     exit(1);
   }
-  TrafficController traffic_controller(max_mass, location, message_queue,
+  TrafficControllerNS::TrafficController traffic_controller(max_mass, location, message_queue,
                                        semaphore, log);
   while (true) {
     traffic_controller.GetTrucks();
@@ -20,7 +20,7 @@ void TrafficControllerFoo(uint8_t max_mass, bool location, key_t message_queue,
   }
 }
 
-void TrafficController::GetTrucks() {
+void TrafficControllerNS::TrafficController::GetTrucks() {
   while (true) {
     std::optional<DumpTruck> input_truck = TruckArrival();
     if (!input_truck.has_value()) {

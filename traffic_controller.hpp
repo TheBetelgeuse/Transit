@@ -9,6 +9,7 @@
 #include <iostream>
 #include <optional>
 #include <queue>
+#include <string>
 
 #include "SystemFile.hpp"
 
@@ -21,9 +22,10 @@ struct DumpTruck {  // Структура, которую передаёт са�
 
 class TrafficController {  // регулировщик
  public:
-  TrafficController(uint8_t max_mass, bool location, key_t message_queue_key,
-                    key_t truck_semaphore_arr_key, key_t tc_semaphore_key,
-                    key_t turn_off_semaphore, SystemFile log);
+  TrafficController(uint8_t max_num_of_trucks, uint8_t max_mass, bool location,
+                    key_t message_queue_key, key_t truck_semaphore_arr_key,
+                    key_t tc_semaphore_key, key_t turn_off_semaphore,
+                    std::string log_dir);
   ~TrafficController();
   void StartProcess();
 
