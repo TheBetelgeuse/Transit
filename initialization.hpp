@@ -1,0 +1,8 @@
+//
+// Created by Глеб Бойко on 12.12.2022.
+//
+
+#ifndef TRANSIT__INITIALIZATION_HPP_
+#define TRANSIT__INITIALIZATION_HPP_
+
+#endif //TRANSIT__INITIALIZATION_HPP_
