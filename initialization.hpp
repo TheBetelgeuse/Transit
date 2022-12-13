@@ -4,7 +4,7 @@
 #include "traffic_controller.hpp"
 #include "truck.hpp"
 
-#define LOG_FILE transit
+const char kLogFile[] = "transit";
 
 enum Location { mine = 0, fabric = 1 };
 
