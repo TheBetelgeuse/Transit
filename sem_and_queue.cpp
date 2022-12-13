@@ -21,6 +21,7 @@ MessageQueue::MessageQueue(const MessageQueue& other) {
 
 MessageQueue& MessageQueue::operator=(const MessageQueue& other) {
   descriptor_ = other.descriptor_;
+  return *this;
 }
 
 std::optional<std::pair<int, int>> MessageQueue::Receive(int64_t msg_type,
@@ -73,6 +74,7 @@ Semaphore::Semaphore(const Semaphore& other) {
 
 Semaphore& Semaphore::operator=(const Semaphore& other) {
   descriptor_ = other.descriptor_;
+  return *this;
 }
 
 bool Semaphore::Operation(uint8_t sem_index, short operation, bool wait) {
