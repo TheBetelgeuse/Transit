@@ -32,18 +32,19 @@ class MessageQueue {
 
 class Semaphore {
  public:
-  explicit Semaphore(key_t key);
+  explicit Semaphore(uint8_t num_of_sems, key_t key);
 
   ~Semaphore() = default;
 
-  bool Operation(short operation, bool wait);
+  bool Operation(uint8_t sem_index, short operation, bool wait);
 
-  bool IsZero(bool wait);
+  bool IsZero(uint8_t sem_index, bool wait);
 
   void DeleteSem();
 
  private:
   int descriptor_;
+  uint8_t num_of_sems_;
 };
 
 #endif  // TRANSIT__SEM_AND_QUEUE_HPP_

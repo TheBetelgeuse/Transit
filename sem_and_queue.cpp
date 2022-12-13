@@ -40,11 +40,12 @@ void MessageQueue::Send(std::pair<int, int> message, int64_t msg_type) {
 
 void MessageQueue::DeleteQueue() { msgctl(descriptor_, IPC_RMID, nullptr); }
 
-Semaphore::Semaphore(key_t key) {
-  descriptor_ = semget(key, 1, PERM);
+Semaphore::Semaphore(uint8_t num_of_sems, key_t key) {
+  num_of_sems_ = num_of_sems;
+  descriptor_ = semget(key, num_of_sems_, PERM);
   if (descriptor_ < 0) {
     if (errno == ENOENT) {
-      descriptor_ = semget(key, 1, IPC_CREAT | PERM);
+      descriptor_ = semget(key, num_of_sems_, IPC_CREAT | PERM);
       if (descriptor_ < 0) {
         throw errno;
       }
@@ -54,9 +55,9 @@ Semaphore::Semaphore(key_t key) {
   }
 }
 
-bool Semaphore::Operation(short operation, bool wait) {
+bool Semaphore::Operation(uint8_t sem_index, short operation, bool wait) {
   short flag = wait ? 0 : IPC_NOWAIT;
-  sembuf buf = {0, operation, flag};
+  sembuf buf = {sem_index, operation, flag};
   if (semop(descriptor_, &buf, 1) < 0) {
     if (errno == EAGAIN) {
       return false;
@@ -66,9 +67,9 @@ bool Semaphore::Operation(short operation, bool wait) {
   return true;
 }
 
-bool Semaphore::IsZero(bool wait) {
+bool Semaphore::IsZero(uint8_t sem_index, bool wait) {
   short flag = wait ? 0 : IPC_NOWAIT;
-  sembuf buf = {0, 0, flag};
+  sembuf buf = {sem_index, 0, flag};
   if (semop(descriptor_, &buf, 1) < 0) {
     if (errno == EAGAIN) {
       return false;
@@ -78,4 +79,4 @@ bool Semaphore::IsZero(bool wait) {
   return true;
 }
 
-void Semaphore::DeleteSem() { semctl(descriptor_, 1, IPC_RMID, nullptr); }
+void Semaphore::DeleteSem() { semctl(descriptor_, num_of_sems_, IPC_RMID, nullptr); }
