@@ -6,6 +6,6 @@
 
 const char kLogFile[] = "transit";
 
-enum Location { mine = 0, fabric = 1 };
+enum Location { mine = 0, factory = 1 };
 
 #endif  // TRANSIT__INITIALIZATION_HPP_
