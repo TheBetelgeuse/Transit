@@ -115,13 +115,14 @@ bool TCNS::TrafficController::SendTrucksToBridgeAndWait() {
     return false;
   }
 
-  while (!truck_queue_.empty()) {
+  while (!truck_queue_.empty() && IsTurnedOn()) {
     if (truck_queue_.front().weight + curr_weight > allowed_weight_) {
       break;
     }
 
     try {
       queue_semaphore_.Operation(0, 1, false);
+      turn_off_semaphore_.Operation(0, -1, false);
       message_queue_.Send({0, 0}, truck_queue_.front().number + 2);
     } catch (int error) {
       Logging(ProcessConnectionOperationFailed, error);
