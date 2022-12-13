@@ -5,7 +5,7 @@ int main() {
   int max_load;
   int length;
   int max_number_of_trucks;
-  std::cin >> max_load >> length;
+  std::cin >> max_load >> length >> max_number_of_trucks;
 
   int pid;
   for (int i = 0; i < 2; ++i) {
