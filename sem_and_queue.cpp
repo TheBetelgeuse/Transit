@@ -8,6 +8,7 @@ MessageQueue::MessageQueue(key_t key) {
       if (descriptor_ < 0) {
         throw errno;
       }
+      owner_ = true;
     } else {
       throw errno;
     }
@@ -48,6 +49,8 @@ void MessageQueue::Send(std::pair<int, int> message, int64_t msg_type) {
 
 void MessageQueue::DeleteQueue() { msgctl(descriptor_, IPC_RMID, nullptr); }
 
+bool MessageQueue::IsOwner() { return owner_; }
+
 Semaphore::Semaphore(uint8_t num_of_sems, key_t key) {
   num_of_sems_ = num_of_sems;
   descriptor_ = semget(key, num_of_sems_, PERM);
@@ -57,6 +60,7 @@ Semaphore::Semaphore(uint8_t num_of_sems, key_t key) {
       if (descriptor_ < 0) {
         throw errno;
       }
+      owner_ = true;
     } else {
       throw errno;
     }
@@ -67,7 +71,7 @@ Semaphore::Semaphore(const Semaphore& other) {
   descriptor_ = other.descriptor_;
 }
 
-MessageQueue& Semaphore::operator=(const Semaphore& other) {
+Semaphore& Semaphore::operator=(const Semaphore& other) {
   descriptor_ = other.descriptor_;
 }
 
@@ -98,3 +102,5 @@ bool Semaphore::IsZero(uint8_t sem_index, bool wait) {
 void Semaphore::DeleteSem() {
   semctl(descriptor_, num_of_sems_, IPC_RMID, nullptr);
 }
+
+bool Semaphore::IsOwner() { return owner_; }

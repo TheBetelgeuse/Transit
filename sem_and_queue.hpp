@@ -28,8 +28,11 @@ class MessageQueue {
 
   void DeleteQueue();
 
+  bool IsOwner();
+
  private:
   int descriptor_;
+  bool owner_ = false;
   struct MsgBuf {
     int64_t type;
     char msg[MSG_SIZE];
@@ -46,7 +49,7 @@ class Semaphore {
 
   ~Semaphore() = default;
 
-  MessageQueue& operator=(const Semaphore& other);
+  Semaphore& operator=(const Semaphore& other);
 
   bool Operation(uint8_t sem_index, short operation, bool wait);
 
@@ -54,9 +57,12 @@ class Semaphore {
 
   void DeleteSem();
 
+  bool IsOwner();
+
  private:
   int descriptor_;
   uint8_t num_of_sems_;
+  bool owner_ = false;
 };
 
 #endif  // TRANSIT__SEM_AND_QUEUE_HPP_
