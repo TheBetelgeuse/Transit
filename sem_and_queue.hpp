@@ -12,9 +12,15 @@
 
 class MessageQueue {
  public:
+  MessageQueue() = default;
+
   explicit MessageQueue(key_t key);
 
+  MessageQueue(const MessageQueue& other);
+
   ~MessageQueue() = default;
+
+  MessageQueue& operator=(const MessageQueue& other);
 
   std::optional<std::pair<int, int>> Receive(int64_t msg_type, bool wait);
 
@@ -32,9 +38,15 @@ class MessageQueue {
 
 class Semaphore {
  public:
+  Semaphore() = default;
+
   explicit Semaphore(uint8_t num_of_sems, key_t key);
 
+  Semaphore(const Semaphore& other);
+
   ~Semaphore() = default;
+
+  MessageQueue& operator=(const Semaphore& other);
 
   bool Operation(uint8_t sem_index, short operation, bool wait);
 

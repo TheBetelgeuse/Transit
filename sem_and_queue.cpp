@@ -14,6 +14,14 @@ MessageQueue::MessageQueue(key_t key) {
   }
 }
 
+MessageQueue::MessageQueue(const MessageQueue& other) {
+  descriptor_ = other.descriptor_;
+}
+
+MessageQueue& MessageQueue::operator=(const MessageQueue& other) {
+  descriptor_ = other.descriptor_;
+}
+
 std::optional<std::pair<int, int>> MessageQueue::Receive(int64_t msg_type,
                                                          bool wait) {
   MsgBuf msg;
@@ -55,6 +63,14 @@ Semaphore::Semaphore(uint8_t num_of_sems, key_t key) {
   }
 }
 
+Semaphore::Semaphore(const Semaphore& other) {
+  descriptor_ = other.descriptor_;
+}
+
+MessageQueue& Semaphore::operator=(const Semaphore& other) {
+  descriptor_ = other.descriptor_;
+}
+
 bool Semaphore::Operation(uint8_t sem_index, short operation, bool wait) {
   short flag = wait ? 0 : IPC_NOWAIT;
   sembuf buf = {sem_index, operation, flag};
@@ -79,4 +95,6 @@ bool Semaphore::IsZero(uint8_t sem_index, bool wait) {
   return true;
 }
 
-void Semaphore::DeleteSem() { semctl(descriptor_, num_of_sems_, IPC_RMID, nullptr); }
+void Semaphore::DeleteSem() {
+  semctl(descriptor_, num_of_sems_, IPC_RMID, nullptr);
+}
