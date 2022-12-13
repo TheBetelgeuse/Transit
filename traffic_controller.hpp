@@ -23,17 +23,17 @@ struct Truck {  // Структура, которую передаёт само�
 
 class TrafficController {  // регулировщик
  public:
-  TrafficController(bool location, uint8_t max_mass, uint8_t max_num_of_trucks);
+  TrafficController(bool location, int max_mass, int max_num_of_trucks);
   ~TrafficController();
   void StartProcess();
 
  private:
   bool location_;
-  size_t allowed_weight_;
-  size_t curr_weight_ = 0;
+  int allowed_weight_;
   std::queue<Truck> truck_queue_;
 
   MessageQueue message_queue_;
+  Semaphore queue_semaphore_;
   Semaphore tc_semaphore_;
   Semaphore turn_off_semaphore_;
   Semaphore num_of_users_semaphore_;
@@ -43,12 +43,13 @@ class TrafficController {  // регулировщик
 
   void GetTrucks();
   std::optional<Truck> TruckArrival();
-  void SendTrucksToBridgeAndWait();
+  bool SendTrucksToBridgeAndWait();
   void TransferControlToAnotherControllerAndWait();
 
   bool IsTurnedOn();
   void Finish();
-  void Logging(int mode, int add_inf1 = 0, int add_inf2 = 0);
+  void Logging(int mode, int add_inf1 = -1);
+  std::string IntToString(int number);
 };
 
 }  // namespace TrafficControllerNS
