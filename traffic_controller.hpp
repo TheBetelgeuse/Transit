@@ -12,12 +12,13 @@
 #include <string>
 
 #include "SystemFile.hpp"
+#include "sem_and_queue.hpp"
 
 namespace TCNS {
 
 struct Truck {  // Структура, которую передаёт самосвал регулировщику
-  uint8_t number;
-  uint8_t weight;
+  int number;
+  int weight;
 };
 
 class TrafficController {  // регулировщик
@@ -27,26 +28,27 @@ class TrafficController {  // регулировщик
   void StartProcess();
 
  private:
-  bool controller_location_;
+  bool location_;
   size_t allowed_weight_;
-  size_t curr_weight_;
-  std::queue<Truck> dump_truck_queue_;
+  size_t curr_weight_ = 0;
+  std::queue<Truck> truck_queue_;
 
-  int message_queue_descriptor;
-  int sem_tc_descriptor_;
-  int sem_turn_off_descriptor_;
-  int sem_truck_descriptor_;
-  int sem_num_of_users_descriptor_;
+  MessageQueue message_queue_;
+  Semaphore tc_semaphore_;
+  Semaphore turn_off_semaphore_;
+  Semaphore num_of_users_semaphore_;
 
   SystemFile log_;
+
 
   void GetTrucks();
   std::optional<Truck> TruckArrival();
   void SendTrucksToBridgeAndWait();
   void TransferControlToAnotherControllerAndWait();
 
-  bool IsControlMine();
   bool IsTurnedOn();
+  void Finish();
+  void Logging(int mode, int add_inf1 = 0, int add_inf2 = 0);
 };
 
 }  // namespace TrafficControllerNS
