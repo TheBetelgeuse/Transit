@@ -16,19 +16,19 @@ class MessageQueue {
 
   explicit MessageQueue(key_t key);
 
-  MessageQueue(const MessageQueue& other);
+  MessageQueue(const MessageQueue& other) noexcept;
 
   ~MessageQueue() = default;
 
-  MessageQueue& operator=(const MessageQueue& other);
+  MessageQueue& operator=(const MessageQueue& other) noexcept;
 
   std::optional<std::pair<int, int>> Receive(int64_t msg_type, bool wait);
 
   void Send(std::pair<int, int> message, int64_t msg_type);
 
-  void DeleteQueue();
+  void DeleteQueue() noexcept;
 
-  bool IsOwner();
+  bool IsOwner() noexcept;
 
  private:
   int descriptor_;
@@ -45,19 +45,19 @@ class Semaphore {
 
   explicit Semaphore(uint8_t num_of_sems, key_t key);
 
-  Semaphore(const Semaphore& other);
+  Semaphore(const Semaphore& other) noexcept;
 
   ~Semaphore() = default;
 
-  Semaphore& operator=(const Semaphore& other);
+  Semaphore& operator=(const Semaphore& other) noexcept;
 
   bool Operation(uint8_t sem_index, short operation, bool wait);
 
   bool IsZero(uint8_t sem_index, bool wait);
 
-  void DeleteSem();
+  void DeleteSem() noexcept;
 
-  bool IsOwner();
+  bool IsOwner() noexcept;
 
  private:
   int descriptor_;
