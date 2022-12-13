@@ -6,7 +6,7 @@
 
 enum Location {
   mine = 0,
-  fabric = 2
+  fabric = 1
 };
 
 #endif  // TRANSIT__INITIALIZATION_HPP_
