@@ -4,9 +4,8 @@
 #include "traffic_controller.hpp"
 #include "truck.hpp"
 
-enum Location {
-  mine = 0,
-  fabric = 1
-};
+#define LOG_FILE transit
+
+enum Location { mine = 0, fabric = 1 };
 
 #endif  // TRANSIT__INITIALIZATION_HPP_
