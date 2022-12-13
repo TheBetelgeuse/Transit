@@ -4,5 +4,5 @@ project(Transit)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(Transit
-        initialization.cpp initialization.hpp
-        truck.cpp traffic_controller.cpp traffic_controller.hpp SystemFile.hpp SystemFile.cpp)
+        initialization.cpp
+        truck.cpp traffic_controller.cpp SystemFile.cpp sem_and_queue.cpp)
