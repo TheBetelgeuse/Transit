@@ -1,4 +1,5 @@
 #include "traffic_controller.hpp"
+
 #include "for_society.hpp"
 
 enum LoggingModes {
@@ -25,10 +26,10 @@ TCNS::TrafficController::TrafficController(bool location, int max_mass,
     exit(1);
   }
   try {
-    message_queue_ = MessageQueue(ftok(kLogFile, int(location_) + 1));
-    queue_semaphore_ = Semaphore(1, ftok(kLogFile, int(location_) + 3));
-    tc_semaphore_ = Semaphore(1, ftok(kLogFile, 5));
-    turn_off_semaphore_ = Semaphore(1, ftok(kLogFile, 6));
+    message_queue_ = MessageQueue(ftok(kPCFile, int(location_) + 1));
+    queue_semaphore_ = Semaphore(1, ftok(kPCFile, int(location_) + 3));
+    tc_semaphore_ = Semaphore(1, ftok(kPCFile, 5));
+    turn_off_semaphore_ = Semaphore(1, ftok(kPCFile, 6));
 
     if (turn_off_semaphore_.IsOwner()) {
       try {
@@ -40,7 +41,7 @@ TCNS::TrafficController::TrafficController(bool location, int max_mass,
       }
     }
 
-    num_of_users_semaphore_ = Semaphore(2, ftok(kLogFile, 7));
+    num_of_users_semaphore_ = Semaphore(2, ftok(kPCFile, 7));
     try {
       num_of_users_semaphore_.Operation(0, 1, false);
       if (location_ == factory) {
@@ -59,8 +60,6 @@ TCNS::TrafficController::TrafficController(bool location, int max_mass,
   }
 }
 
-TCNS::TrafficController::~TrafficController() { Finish(); }
-
 void TCNS::TrafficController::StartProcess() {
   if (location_ == factory) {
     try {
@@ -76,6 +75,7 @@ void TCNS::TrafficController::StartProcess() {
     SendTrucksToBridgeAndWait();
     TransferControlToAnotherControllerAndWait();
   }
+  Finish();
 }
 
 void TCNS::TrafficController::GetTrucks() {
@@ -187,8 +187,13 @@ void TCNS::TrafficController::Finish() {
   try {
     if (num_of_users_semaphore_.IsZero(1, false)) {
       tc_semaphore_.DeleteSem();
-      while (turn_off_semaphore_.Operation(0, -1, false))
-        ;
+      while (turn_off_semaphore_.Operation(0, -1, false));
+    } else {
+      if (location_ == mine) {
+        tc_semaphore_.Operation(0, 2, false);
+      } else {
+        tc_semaphore_.Operation(0, -1, false);
+      }
     }
     num_of_users_semaphore_.Operation(0, -1, false);
     num_of_users_semaphore_.Operation(1, -1, false);
@@ -206,33 +211,34 @@ void TCNS::TrafficController::Finish() {
   }
 
   log_.closef();
+  exit(0);
 }
 
 void TCNS::TrafficController::Logging(int mode, int add_inf) {
   std::string message;
   switch (mode) {
     case PrecessConnectionInitFailed:
-      message += "Не удалось создать инструменты МПВ. Код ошибки: " +
-                 IntToString(add_inf) + "\n";
+      message = "Не удалось создать инструменты МПВ. Код ошибки: ";
+      message += IntToString(add_inf) + "\n";
       break;
     case ProcessConnectionOperationFailed:
-      message += "Ошибка при обращении к инструментам МПВ. Код ошибки: " +
-                 IntToString(add_inf) + "\n";
+      message = "Ошибка при обращении к инструментам МПВ. Код ошибки: ";
+      message += IntToString(add_inf) + "\n";
       break;
     case TruckArrived:
-      message +=
-          "К регулировщику прибыл самосвал № " + IntToString(add_inf) + "\n";
+      message = "К регулировщику прибыл самосвал № ";
+      message += IntToString(add_inf) + "\n";
       break;
     case NotSupportedTruckInFront:
-      message +=
-          "К регулировщику прибыл самосвал недопустимого веса с номером " +
-          IntToString(add_inf) + "\n";
+      message = "К регулировщику прибыл самосвал недопустимого веса с номером ";
+      message += IntToString(add_inf) + "\n";
       break;
     case NoTruckInQueue:
       message = "В очереди к регулировщику не самосвалов\n";
       break;
     case TruckSendToBridge:
-      message += "Самосвал № " + IntToString(add_inf) + " отправлен на мост\n";
+      message = "Самосвал № ";
+      message += IntToString(add_inf) + " отправлен на мост\n";
       break;
     case TrucksPassedBridge:
       message = "Все отправленные на мост самосвалы успешно его преодолели\n";
@@ -252,6 +258,8 @@ void TCNS::TrafficController::Logging(int mode, int add_inf) {
       message = "Это сообщение не должно быть выведено!\n";
   }
 
+  std::cout << message << std::endl;
+  std::cout << IntToString(add_inf) << std::endl;
   if (!log_.writef(message.c_str(), message.size() + 1)) {
     std::cout << "Не удалось записать лог в файл!\n";
   }
