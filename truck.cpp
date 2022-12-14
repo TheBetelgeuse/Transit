@@ -8,20 +8,20 @@ TruckNS::Truck::Truck(bool init_location, int number, int weight, int speed, int
   lenght_ = lenght;
 
 
-  quantity = Semaphore(2 ,ftok(pathname, 7));
+  quantity = Semaphore(2 ,ftok(kPCFile, 7));
   quantity.Operation(0, 1, false);
-  end = Semaphore(1, ftok(pathname, 6));
-  main = Semaphore(1, ftok(pathname, 3));
-  factory = Semaphore(1, ftok(pathname, 4));
-  zero_controller = MessageQueue(ftok(pathname, 1));
-  one_controller = MessageQueue(ftok(pathname, 2));
+  end = Semaphore(1, ftok(kPCFile, 6));
+  main = Semaphore(1, ftok(kPCFile, 3));
+  factory = Semaphore(1, ftok(kPCFile, 4));
+  zero_controller = MessageQueue(ftok(kPCFile, 1));
+  one_controller = MessageQueue(ftok(kPCFile, 2));
 
 }
 
 void TruckNS::Truck::StartProcess() {
   while (1) {
     if (end.IsZero(0, false)) {
-      break;
+      EndProcess();
     } else {
       try {
         init_location_ ? one_controller.Send({index_, weight_}, 1) : zero_controller.Send({index_, weight_,}, 1);
@@ -57,4 +57,5 @@ void TruckNS::Truck::EndProcess() {
     quantity.DeleteSem();
     end.DeleteSem();
   }
+  exit(0);
 }
