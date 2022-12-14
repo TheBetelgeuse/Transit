@@ -1,5 +1,4 @@
-#ifndef TRANSIT_TRAFFIC_CONTROLLER_HPP_
-#define TRANSIT_TRAFFIC_CONTROLLER_HPP_
+#pragma once
 
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -49,9 +48,6 @@ class TrafficController {  // регулировщик
   bool IsTurnedOn();
   void Finish();
   void Logging(int mode, int add_inf1 = -1);
-  std::string IntToString(int number);
 };
 
 }  // namespace TrafficControllerNS
-
-#endif  // TRANSIT_TRAFFIC_CONTROLLER_HPP_
