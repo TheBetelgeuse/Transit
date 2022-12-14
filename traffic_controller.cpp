@@ -1,6 +1,7 @@
 #include "traffic_controller.hpp"
 
 #include "for_society.hpp"
+#include "unistd.h"
 
 enum LoggingModes {
   PrecessConnectionInitFailed = -1,
@@ -12,7 +13,9 @@ enum LoggingModes {
   TrucksPassedBridge = 4,
   ControlTransferred = 5,
   ControlCannotBeTransferred = 6,
-  ControlGot = 7
+  ControlGot = 7,
+  StartintProcess = 8,
+  FinishingProcess = 9
 };
 
 TCNS::TrafficController::TrafficController(bool location, int max_mass,
@@ -61,6 +64,7 @@ TCNS::TrafficController::TrafficController(bool location, int max_mass,
 }
 
 void TCNS::TrafficController::StartProcess() {
+  Logging(StartintProcess);
   if (location_ == factory) {
     try {
       tc_semaphore_.Operation(0, -1, true);
@@ -71,6 +75,7 @@ void TCNS::TrafficController::StartProcess() {
     }
   }
   while (IsTurnedOn()) {
+    sleep(1);
     GetTrucks();
     SendTrucksToBridgeAndWait();
     TransferControlToAnotherControllerAndWait();
@@ -113,7 +118,6 @@ bool TCNS::TrafficController::SendTrucksToBridgeAndWait() {
     Logging(NotSupportedTruckInFront, truck_queue_.front().number);
     return false;
   }
-
   while (!truck_queue_.empty() && IsTurnedOn()) {
     if (truck_queue_.front().weight + curr_weight > allowed_weight_) {
       break;
@@ -137,7 +141,9 @@ bool TCNS::TrafficController::SendTrucksToBridgeAndWait() {
 
   try {
     queue_semaphore_.IsZero(0, true);
-    Logging(TrucksPassedBridge);
+    if (curr_weight != 0) {
+      Logging(TrucksPassedBridge);
+    }
   } catch (int error) {
     Logging(ProcessConnectionOperationFailed, error);
     Finish();
@@ -187,7 +193,8 @@ void TCNS::TrafficController::Finish() {
   try {
     if (num_of_users_semaphore_.IsZero(1, false)) {
       tc_semaphore_.DeleteSem();
-      while (turn_off_semaphore_.Operation(0, -1, false));
+      while (turn_off_semaphore_.Operation(0, -1, false))
+        ;
     } else {
       if (location_ == mine) {
         tc_semaphore_.Operation(0, 2, false);
@@ -209,36 +216,43 @@ void TCNS::TrafficController::Finish() {
     log_.closef();
     exit(ProcessConnectionOperationFailed);
   }
-
+  Logging(FinishingProcess);
   log_.closef();
   exit(0);
 }
 
 void TCNS::TrafficController::Logging(int mode, int add_inf) {
+  std::vector<char> number(10);
+  sprintf(number.data(), "%d", add_inf);
   std::string message;
   switch (mode) {
     case PrecessConnectionInitFailed:
       message = "Не удалось создать инструменты МПВ. Код ошибки: ";
-      message += IntToString(add_inf) + "\n";
+      message += number.data();
+      message += "\n";
       break;
     case ProcessConnectionOperationFailed:
       message = "Ошибка при обращении к инструментам МПВ. Код ошибки: ";
-      message += IntToString(add_inf) + "\n";
+      message += number.data();
+      message += "\n";
       break;
     case TruckArrived:
       message = "К регулировщику прибыл самосвал № ";
-      message += IntToString(add_inf) + "\n";
+      message += number.data();
+      message += "\n";
       break;
     case NotSupportedTruckInFront:
       message = "К регулировщику прибыл самосвал недопустимого веса с номером ";
-      message += IntToString(add_inf) + "\n";
+      message += number.data();
+      message += "\n";
       break;
     case NoTruckInQueue:
       message = "В очереди к регулировщику не самосвалов\n";
       break;
     case TruckSendToBridge:
       message = "Самосвал № ";
-      message += IntToString(add_inf) + " отправлен на мост\n";
+      message += number.data();
+      message += " отправлен на мост\n";
       break;
     case TrucksPassedBridge:
       message = "Все отправленные на мост самосвалы успешно его преодолели\n";
@@ -253,6 +267,12 @@ void TCNS::TrafficController::Logging(int mode, int add_inf) {
       break;
     case ControlGot:
       message = "Контроль над мостом возвращён\n";
+      break;
+    case StartintProcess:
+      message = "Регулировщик запущен\n";
+      break;
+    case FinishingProcess:
+      message = "Регулировщик завершил работу";
       break;
     default:
       message = "Это сообщение не должно быть выведено!\n";
