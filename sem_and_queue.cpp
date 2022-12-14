@@ -66,7 +66,6 @@ Semaphore::Semaphore(uint8_t num_of_sems, key_t key) {
       if (descriptor_ < 0) {
         throw errno;
       }
-      owner_ = true;
     } else {
       throw errno;
     }
@@ -76,13 +75,11 @@ Semaphore::Semaphore(uint8_t num_of_sems, key_t key) {
 Semaphore::Semaphore(const Semaphore& other) noexcept {
   descriptor_ = other.descriptor_;
   descriptor_ = other.descriptor_;
-  owner_ = other.owner_;
   num_of_sems_ = other.num_of_sems_;
 }
 
 Semaphore& Semaphore::operator=(const Semaphore& other) noexcept {
   descriptor_ = other.descriptor_;
-  owner_ = other.owner_;
   num_of_sems_ = other.num_of_sems_;
   return *this;
 }
@@ -114,5 +111,3 @@ bool Semaphore::IsZero(uint8_t sem_index, bool wait) {
 void Semaphore::DeleteSem() noexcept {
   semctl(descriptor_, num_of_sems_, IPC_RMID, nullptr);
 }
-
-bool Semaphore::IsOwner() noexcept { return owner_; }

@@ -56,10 +56,7 @@ class Semaphore {
 
   void DeleteSem() noexcept;
 
-  bool IsOwner() noexcept;
-
  private:
   int descriptor_;
   uint8_t num_of_sems_;
-  bool owner_ = false;
 };
