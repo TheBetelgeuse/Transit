@@ -23,7 +23,7 @@ struct Truck {  // Структура, которую передаёт само�
 class TrafficController {  // регулировщик
  public:
   TrafficController(bool location, int max_mass, int max_num_of_trucks);
-  ~TrafficController();
+  ~TrafficController() = default;
   void StartProcess();
 
  private:
