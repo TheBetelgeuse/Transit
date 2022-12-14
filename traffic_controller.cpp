@@ -1,5 +1,5 @@
 #include "traffic_controller.hpp"
-
+#pragma once
 #include "initialization.hpp"
 
 enum LoggingModes {
