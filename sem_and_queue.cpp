@@ -15,11 +15,11 @@ MessageQueue::MessageQueue(key_t key) {
   }
 }
 
-MessageQueue::MessageQueue(const MessageQueue& other) {
+MessageQueue::MessageQueue(const MessageQueue& other) noexcept {
   descriptor_ = other.descriptor_;
 }
 
-MessageQueue& MessageQueue::operator=(const MessageQueue& other) {
+MessageQueue& MessageQueue::operator=(const MessageQueue& other) noexcept {
   descriptor_ = other.descriptor_;
   return *this;
 }
@@ -48,9 +48,11 @@ void MessageQueue::Send(std::pair<int, int> message, int64_t msg_type) {
   }
 }
 
-void MessageQueue::DeleteQueue() { msgctl(descriptor_, IPC_RMID, nullptr); }
+void MessageQueue::DeleteQueue() noexcept {
+  msgctl(descriptor_, IPC_RMID, nullptr);
+}
 
-bool MessageQueue::IsOwner() { return owner_; }
+bool MessageQueue::IsOwner() noexcept { return owner_; }
 
 Semaphore::Semaphore(uint8_t num_of_sems, key_t key) {
   num_of_sems_ = num_of_sems;
@@ -68,11 +70,11 @@ Semaphore::Semaphore(uint8_t num_of_sems, key_t key) {
   }
 }
 
-Semaphore::Semaphore(const Semaphore& other) {
+Semaphore::Semaphore(const Semaphore& other) noexcept {
   descriptor_ = other.descriptor_;
 }
 
-Semaphore& Semaphore::operator=(const Semaphore& other) {
+Semaphore& Semaphore::operator=(const Semaphore& other) noexcept {
   descriptor_ = other.descriptor_;
   return *this;
 }
@@ -101,8 +103,8 @@ bool Semaphore::IsZero(uint8_t sem_index, bool wait) {
   return true;
 }
 
-void Semaphore::DeleteSem() {
+void Semaphore::DeleteSem() noexcept {
   semctl(descriptor_, num_of_sems_, IPC_RMID, nullptr);
 }
 
-bool Semaphore::IsOwner() { return owner_; }
+bool Semaphore::IsOwner() noexcept { return owner_; }
