@@ -1,5 +1,4 @@
-#ifndef SYSTEM_FILE_HPP_
-#define SYSTEM_FILE_HPP_
+#pragma once
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -124,5 +123,3 @@ public:
 // напечатать все имена файлов из этого каталога
   void list();
 };
-
-#endif //SYSTEM_FILE_HPP_

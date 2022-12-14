@@ -1,5 +1,4 @@
-#ifndef TRANSIT__SEM_AND_QUEUE_HPP_
-#define TRANSIT__SEM_AND_QUEUE_HPP_
+#pragma once
 
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -64,5 +63,3 @@ class Semaphore {
   uint8_t num_of_sems_;
   bool owner_ = false;
 };
-
-#endif  // TRANSIT__SEM_AND_QUEUE_HPP_
