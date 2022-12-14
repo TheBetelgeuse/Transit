@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-const char kLogFile[] = "transit";
+const char kPCFile[] = "transit";
 
 enum Location { mine = 0, factory = 1 };
 
