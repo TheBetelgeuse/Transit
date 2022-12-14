@@ -1,5 +1,7 @@
 #include "traffic_controller.hpp"
 
+#include <string>
+
 #include "for_society.hpp"
 #include "unistd.h"
 
@@ -29,8 +31,8 @@ TCNS::TrafficController::TrafficController(bool location, int max_mass,
     log_file += "factory.txt";
   }
   if (log_.openf(log_file.c_str()) < 0) {
+    std::cout << "Не удалось открыть файл!\n";
     Finish();
-    exit(1);
   }
   try {
     message_queue_ = MessageQueue(ftok(kPCFile, int(location_) + 1));
@@ -38,7 +40,7 @@ TCNS::TrafficController::TrafficController(bool location, int max_mass,
     tc_semaphore_ = Semaphore(1, ftok(kPCFile, 5));
     turn_off_semaphore_ = Semaphore(1, ftok(kPCFile, 6));
 
-    if (turn_off_semaphore_.IsOwner()) {
+    if (location_ == mine) {
       try {
         turn_off_semaphore_.Operation(0, max_num_of_trucks, false);
       } catch (int error) {
@@ -72,6 +74,7 @@ void TCNS::TrafficController::StartProcess() {
   if (location_ == factory) {
     try {
       tc_semaphore_.Operation(0, -1, true);
+      Logging(ControlGot);
     } catch (int error) {
       Logging(ProcessConnectionOperationFailed, error);
       Finish();
@@ -115,12 +118,12 @@ std::optional<TCNS::Truck> TCNS::TrafficController::TruckArrival() {
   return result;
 }
 
-bool TCNS::TrafficController::SendTrucksToBridgeAndWait() {
+void TCNS::TrafficController::SendTrucksToBridgeAndWait() {
   int curr_weight = 0;
 
   if (!truck_queue_.empty() && truck_queue_.front().weight > allowed_weight_) {
     Logging(NotSupportedTruckInFront, truck_queue_.front().number);
-    return false;
+    Finish();
   }
   while (!truck_queue_.empty() && IsTurnedOn()) {
     if (truck_queue_.front().weight + curr_weight > allowed_weight_) {
@@ -153,8 +156,6 @@ bool TCNS::TrafficController::SendTrucksToBridgeAndWait() {
     Finish();
     exit(ProcessConnectionOperationFailed);
   }
-
-  return true;
 }
 
 void TCNS::TrafficController::TransferControlToAnotherControllerAndWait() {
@@ -183,6 +184,12 @@ void TCNS::TrafficController::TransferControlToAnotherControllerAndWait() {
 
 bool TCNS::TrafficController::IsTurnedOn() {
   try {
+    if (num_of_users_semaphore_.IsZero(1, false)) {
+      if (!num_of_users_semaphore_.Operation(0, -2, false)) {
+        return false;
+      }
+      num_of_users_semaphore_.Operation(0, 2, false);
+    }
     return !turn_off_semaphore_.IsZero(0, false);
   } catch (int error) {
     Logging(ProcessConnectionOperationFailed, error);
@@ -200,6 +207,7 @@ void TCNS::TrafficController::Finish() {
       while (turn_off_semaphore_.Operation(0, -1, false))
         ;
     } else {
+      num_of_users_semaphore_.Operation(1, -1, false);
       if (location_ == mine) {
         tc_semaphore_.Operation(0, 2, false);
       } else {
@@ -207,7 +215,6 @@ void TCNS::TrafficController::Finish() {
       }
     }
     num_of_users_semaphore_.Operation(0, -1, false);
-    num_of_users_semaphore_.Operation(1, -1, false);
     if (num_of_users_semaphore_.IsZero(0, false)) {
       turn_off_semaphore_.DeleteSem();
       num_of_users_semaphore_.DeleteSem();
@@ -226,64 +233,59 @@ void TCNS::TrafficController::Finish() {
 }
 
 void TCNS::TrafficController::Logging(int mode, int add_inf) {
-  std::vector<char> number(10);
-  sprintf(number.data(), "%d", add_inf);
-  std::string message;
+  std::vector<char> message(200);
   switch (mode) {
     case PrecessConnectionInitFailed:
-      message = "Не удалось создать инструменты МПВ. Код ошибки: ";
-      message += number.data();
-      message += "\n";
+      sprintf(message.data(),
+              "Не удалось создать инструменты МПВ. Код ошибки: %d\n", add_inf);
       break;
     case ProcessConnectionOperationFailed:
-      message = "Ошибка при обращении к инструментам МПВ. Код ошибки: ";
-      message += number.data();
-      message += "\n";
+      sprintf(message.data(),
+              "Ошибка при обращении к инструментам МПВ. Код ошибки: %d\n",
+              add_inf);
       break;
     case TruckArrived:
-      message = "К регулировщику прибыл самосвал № ";
-      message += number.data();
-      message += "\n";
+      sprintf(message.data(), "К регулировщику прибыл самосвал № %d\n",
+              add_inf);
       break;
     case NotSupportedTruckInFront:
-      message = "К регулировщику прибыл самосвал недопустимого веса с номером ";
-      message += number.data();
-      message += "\n";
+      sprintf(
+          message.data(),
+          "К регулировщику прибыл самосвал недопустимого веса с номером %d\n",
+          add_inf);
       break;
     case NoTruckInQueue:
-      message = "В очереди к регулировщику не самосвалов\n";
+      sprintf(message.data(), "В очереди к регулировщику не самосвалов\n");
       break;
     case TruckSendToBridge:
-      message = "Самосвал № ";
-      message += number.data();
-      message += " отправлен на мост\n";
+      sprintf(message.data(), "Самосвал № %d отправлен на мост\n", add_inf);
       break;
     case TrucksPassedBridge:
-      message = "Все отправленные на мост самосвалы успешно его преодолели\n";
+      sprintf(message.data(),
+              "Все отправленные на мост самосвалы успешно его преодолели\n");
       break;
     case ControlTransferred:
-      message = "Контроль над мостом передан другому регулировщику\n";
+      sprintf(message.data(),
+              "Контроль над мостом передан другому регулировщику\n");
       break;
     case ControlCannotBeTransferred:
-      message =
-          "Контроль не может быть передан другому регулировщика, так как его "
-          "не существует\n";
+      sprintf(message.data(),
+              "Контроль не может быть передан другому регулировщика, так как "
+              "его не существует\n");
       break;
     case ControlGot:
-      message = "Контроль над мостом возвращён\n";
+      sprintf(message.data(), "Контроль над мостом возвращён\n");
       break;
     case StartintProcess:
-      message = "Регулировщик запущен\n";
+      sprintf(message.data(), "Регулировщик запущен\n");
       break;
     case FinishingProcess:
-      message = "Регулировщик завершил работу";
+      sprintf(message.data(), "Регулировщик завершил работу");
       break;
     default:
-      message = "Это сообщение не должно быть выведено!\n";
+      sprintf(message.data(), "Это сообщение не должно быть выведено!\n");
   }
-
-  std::cout << message << std::endl;
-  if (!log_.writef(message.c_str(), message.size() + 1)) {
+  if (!log_.writef(message.data(), std::strlen(message.data()))) {
     std::cout << "Не удалось записать лог в файл!\n";
   }
 }

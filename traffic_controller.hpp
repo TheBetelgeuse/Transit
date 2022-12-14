@@ -42,7 +42,7 @@ class TrafficController {  // регулировщик
 
   void GetTrucks();
   std::optional<Truck> TruckArrival();
-  bool SendTrucksToBridgeAndWait();
+  void SendTrucksToBridgeAndWait();
   void TransferControlToAnotherControllerAndWait();
 
   bool IsTurnedOn();
