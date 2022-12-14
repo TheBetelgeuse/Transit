@@ -1,8 +1,7 @@
-#pragma once
-#include "initialization.hpp"
 #include <iostream>
 #include "truck.hpp"
 #include "traffic_controller.hpp"
+
 int main() {
   SystemFile file;
   file.openf("LogInitializator.txt");
@@ -54,7 +53,4 @@ int main() {
       return 0;
     }
   }
-
-
-
 }
