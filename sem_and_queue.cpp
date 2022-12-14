@@ -17,10 +17,13 @@ MessageQueue::MessageQueue(key_t key) {
 
 MessageQueue::MessageQueue(const MessageQueue& other) noexcept {
   descriptor_ = other.descriptor_;
+  descriptor_ = other.descriptor_;
+  owner_ = other.owner_;
 }
 
 MessageQueue& MessageQueue::operator=(const MessageQueue& other) noexcept {
   descriptor_ = other.descriptor_;
+  owner_ = other.owner_;
   return *this;
 }
 
@@ -72,10 +75,15 @@ Semaphore::Semaphore(uint8_t num_of_sems, key_t key) {
 
 Semaphore::Semaphore(const Semaphore& other) noexcept {
   descriptor_ = other.descriptor_;
+  descriptor_ = other.descriptor_;
+  owner_ = other.owner_;
+  num_of_sems_ = other.num_of_sems_;
 }
 
 Semaphore& Semaphore::operator=(const Semaphore& other) noexcept {
   descriptor_ = other.descriptor_;
+  owner_ = other.owner_;
+  num_of_sems_ = other.num_of_sems_;
   return *this;
 }
 
