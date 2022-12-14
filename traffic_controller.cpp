@@ -283,7 +283,6 @@ void TCNS::TrafficController::Logging(int mode, int add_inf) {
   }
 
   std::cout << message << std::endl;
-  std::cout << IntToString(add_inf) << std::endl;
   if (!log_.writef(message.c_str(), message.size() + 1)) {
     std::cout << "Не удалось записать лог в файл!\n";
   }
