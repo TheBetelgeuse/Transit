@@ -1,9 +1,7 @@
 #pragma once
-#ifndef TRANSIT__TRUCK_HPP_
-#define TRANSIT__TRUCK_HPP_
 
 #include "sem_and_queue.hpp"
-#include "initialization.hpp"
+#include "for_society.hpp"
 #include <optional>
 
 namespace TruckNS {
@@ -11,11 +9,7 @@ namespace TruckNS {
 class Truck {
  public:
   Truck(bool init_location, int number, int weight, int speed, int lenght);
-  int GetSpeed() const { return speed_; }
-  int GetWeight() const { return weight_; }
-  bool GetPosition() const { return init_location_; }
   void StartProcess();
-  void EndProcess();
 
  private:
   int speed_;
@@ -31,66 +25,7 @@ class Truck {
   MessageQueue zero_controller;
   MessageQueue one_controller;
 
+  void EndProcess();
 };
 
-Truck::Truck(bool init_location, int number, int weight, int speed, int lenght) {
-  speed_ = speed;
-  weight_ = weight;
-  init_location_ = init_location;
-  index_ = number;
-  lenght_ = lenght;
-
-
-  quantity = Semaphore(2 ,ftok(pathname, 7));
-  quantity.Operation(0, 1, false);
-  end = Semaphore(1, ftok(pathname, 6));
-  main = Semaphore(1, ftok(pathname, 3));
-  factory = Semaphore(1, ftok(pathname, 4));
-  zero_controller = MessageQueue(ftok(pathname, 1));
-  one_controller = MessageQueue(ftok(pathname, 2));
-
-}
-void Truck::StartProcess() {
-  while (1) {
-    if (end.IsZero(0, false)) {
-      break;
-    } else {
-      try {
-        init_location_ ? one_controller.Send({index_, weight_}, 1) : zero_controller.Send({index_, weight_,}, 1);
-      } catch (int) {
-        EndProcess();
-        exit(404);
-      }
-      try {
-        init_location_ ? one_controller.Receive(index_ + 2, true) : zero_controller.Receive(index_ + 2, true);
-      } catch (int error) {
-        if (error == EINTR) {
-          EndProcess();
-          return;
-        } else {
-          EndProcess();
-          exit (404);
-        }
-      }
-      try {
-        init_location_ ? factory.Operation(0, -1, false) : main.Operation(0, -1, false);
-      } catch (int) {
-        exit (404);
-      }
-      init_location_ = !init_location_;
-
-    }
-  }
-
-}
-void Truck::EndProcess() {
-  quantity.Operation(0, -1, false);
-  if (quantity.IsZero(0, false)) {
-    quantity.DeleteSem();
-    end.DeleteSem();
-  }
-}
 } // namespace TruckNS
-
-
-#endif // TRANSIT__TRUCK_HPP_
