@@ -8,6 +8,7 @@ namespace TruckNS {
 
 class Truck {
  public:
+  Truck() = default;
   Truck(bool init_location, int number, int weight, int speed, int lenght);
   void StartProcess();
 
