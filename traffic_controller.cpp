@@ -30,10 +30,6 @@ TCNS::TrafficController::TrafficController(bool location, int max_mass,
   } else {
     log_file += "factory.txt";
   }
-  if (log_.openf(log_file.c_str()) < 0) {
-    std::cout << "Не удалось открыть файл!\n";
-    Finish();
-  }
   try {
     message_queue_ = MessageQueue(ftok(kPCFile, int(location_) + 1));
     queue_semaphore_ = Semaphore(1, ftok(kPCFile, int(location_) + 3));
@@ -284,5 +280,8 @@ void TCNS::TrafficController::Logging(int mode, int add_inf) {
       break;
     default:
       sprintf(message.data(), "Это сообщение не должно быть выведено!\n");
+  }
+  if (!log_.writef(message.data(), std::strlen(message.data()))) {
+    std::cout << "Не удалось записать лог в файл!\n";
   }
 }
