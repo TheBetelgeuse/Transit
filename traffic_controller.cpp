@@ -24,12 +24,13 @@ TCNS::TrafficController::TrafficController(bool location, int max_mass,
                                            int max_num_of_trucks) {
   location_ = location;
   allowed_weight_ = max_mass;
-  std::string log_file = "LogTrafficController ";
-  if (location_ == mine) {
+  std::string log_file = "LogTrafficController_";
+  if (location == mine) {
     log_file += "mine.txt";
   } else {
     log_file += "factory.txt";
   }
+  log_.openf(log_file.c_str());
   try {
     message_queue_ = MessageQueue(ftok(kPCFile, int(location_) + 1));
     queue_semaphore_ = Semaphore(1, ftok(kPCFile, int(location_) + 3));

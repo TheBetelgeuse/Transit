@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <unistd.h>
 
 #include "traffic_controller.hpp"
 #include "truck.hpp"
@@ -29,6 +30,19 @@ int main() {
     file.writef(logs.data(), std::strlen(logs.data()));
   }
 
+  int pid;
+  for (int i = 0; i < 2; ++i) {
+    pid = fork();
+    if (pid == 0) {
+      traffic_controllers[i]->StartProcess();
+      exit(0);
+    }
+  }
+
+  for (int i = 0; i < traffic_controllers.size(); ++i) {
+    delete traffic_controllers[i];
+  }
+
   int init_number_of_trucks;
   std::cin >> init_number_of_trucks;
   std::vector<TruckNS::Truck*> trucks(init_number_of_trucks, nullptr);
@@ -46,15 +60,6 @@ int main() {
     file.writef(logs.data(), std::strlen(logs.data()));
   }
 
-  int pid;
-  for (int i = 0; i < 2; ++i) {
-    pid = fork();
-    if (pid == 0) {
-      traffic_controllers[i]->StartProcess();
-      exit(0);
-    }
-  }
-
   for (int i = 0; i < init_number_of_trucks; ++i) {
     pid = fork();
     if (pid == 0) {
@@ -63,19 +68,9 @@ int main() {
     }
   }
 
-  for (int i = 0; i < traffic_controllers.size(); ++i) {
-    delete traffic_controllers[i];
-  }
-
-  /*******************************************************/
-  for (int i = 0; i < init_number_of_trucks + 2; ++i) {
-    int tmp;
-    pid = wait(&tmp);
-  }
   for (int i = 0; i < trucks.size(); ++i) {
     delete trucks[i];
   }
+
   file.closef();
-  std::cout << "Init Finish\n";
-  /*******************************************************/
 }
