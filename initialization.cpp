@@ -2,14 +2,13 @@
 
 #include <iostream>
 #include <vector>
-#include <unistd.h>
 
 #include "traffic_controller.hpp"
 #include "truck.hpp"
 
 int main() {
   SystemFile file;
-  file.openf("LogInitializator.txt");
+  file.openf("Logging/LogInitializator.txt");
   std::vector<char> logs(200);
 
   int max_load, length, max_number_of_trucks;
@@ -39,10 +38,6 @@ int main() {
     }
   }
 
-  for (int i = 0; i < traffic_controllers.size(); ++i) {
-    delete traffic_controllers[i];
-  }
-
   int init_number_of_trucks;
   std::cin >> init_number_of_trucks;
   std::vector<TruckNS::Truck*> trucks(init_number_of_trucks, nullptr);
@@ -66,10 +61,6 @@ int main() {
       trucks[i]->StartProcess();
       exit(0);
     }
-  }
-
-  for (int i = 0; i < trucks.size(); ++i) {
-    delete trucks[i];
   }
 
   file.closef();

@@ -24,7 +24,7 @@ TCNS::TrafficController::TrafficController(bool location, int max_mass,
                                            int max_num_of_trucks) {
   location_ = location;
   allowed_weight_ = max_mass;
-  std::string log_file = "LogTrafficController_";
+  std::string log_file = "Logging/LogTrafficController_";
   if (location == mine) {
     log_file += "mine.txt";
   } else {
