@@ -66,15 +66,16 @@ int main() {
   for (int i = 0; i < traffic_controllers.size(); ++i) {
     delete traffic_controllers[i];
   }
-  for (int i = 0; i < trucks.size(); ++i) {
-    delete trucks[i];
-  }
 
   /*******************************************************/
   for (int i = 0; i < init_number_of_trucks + 2; ++i) {
     int tmp;
     pid = wait(&tmp);
   }
+  for (int i = 0; i < trucks.size(); ++i) {
+    delete trucks[i];
+  }
+  file.closef();
   std::cout << "Init Finish\n";
   /*******************************************************/
 }

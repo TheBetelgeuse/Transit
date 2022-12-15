@@ -285,7 +285,4 @@ void TCNS::TrafficController::Logging(int mode, int add_inf) {
     default:
       sprintf(message.data(), "Это сообщение не должно быть выведено!\n");
   }
-  if (!log_.writef(message.data(), std::strlen(message.data()))) {
-    std::cout << "Не удалось записать лог в файл!\n";
-  }
 }

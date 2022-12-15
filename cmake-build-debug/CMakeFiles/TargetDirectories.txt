@@ -1,3 +1,0 @@
-/Users/thebetelgeuse/Transit/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/thebetelgeuse/Transit/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/thebetelgeuse/Transit/cmake-build-debug/CMakeFiles/Transit.dir

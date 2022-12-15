@@ -3,7 +3,7 @@
 #include "sem_and_queue.hpp"
 #include "for_society.hpp"
 #include <optional>
-
+#include "SystemFile.hpp"
 namespace TruckNS {
 
 class Truck {
@@ -25,6 +25,7 @@ class Truck {
   Semaphore factory;
   MessageQueue zero_controller;
   MessageQueue one_controller;
+  SystemFile file;
 
   void EndProcess();
 };
