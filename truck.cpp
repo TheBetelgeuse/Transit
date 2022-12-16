@@ -19,7 +19,7 @@ TruckNS::Truck::Truck(bool init_location, int number, int weight, int speed,
   one_controller = MessageQueue(ftok(kPCFile, 2));
   std::vector<char> filename(100);
   sprintf(filename.data(), "Logging/LogTruck%d.txt", index_);
-  file.openf("LogTruck.txt");
+  file.openf(filename.data());
   std::vector<char> log(1000);
   sprintf(log.data(),
           "Был создан самосвал с такими параметрами: Скорость – %d; номер "
